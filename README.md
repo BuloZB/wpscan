@@ -24,12 +24,12 @@
 
 ## Prerequisites
 
-- (Optional but highly recommended: [RVM](https://rvm.io/rvm/install))
-- Ruby >= 3.0 - Recommended: latest
-- Curl >= 7.72  - Recommended: latest
+- (Optional but highly recommended: [rbenv](https://github.com/rbenv/rbenv))
+- Ruby >= 3.3 - Recommended: latest stable
+- Curl >= 7.72 - Recommended: latest stable
   - The 7.29 has a segfault
   - The < 7.72 could result in `Stream error in the HTTP/2 framing layer` in some cases
-- RubyGems      - Recommended: latest
+- RubyGems - Recommended: latest stable
 - Nokogiri might require packages to be installed via your package manager depending on your OS, see https://nokogiri.org/tutorials/installing_nokogiri.html
 
 ### In a Pentesting distribution
@@ -48,7 +48,7 @@ brew install wpscanteam/tap/wpscan
 gem install wpscan
 ```
 
-On MacOSX, if a ```Gem::FilePermissionError``` is raised due to the Apple's System Integrity Protection (SIP), either install RVM and install wpscan again, or run ```sudo gem install -n /usr/local/bin wpscan``` (see [#1286](https://github.com/wpscanteam/wpscan/issues/1286))
+On MacOSX, if a ```Gem::FilePermissionError``` is raised due to Apple's System Integrity Protection (SIP), either install RVM and install wpscan again, or run ```sudo gem install -n /usr/local/bin wpscan``` (see [#1286](https://github.com/wpscanteam/wpscan/issues/1286))
 
 # Updating
 
@@ -85,17 +85,28 @@ As a result, when using the ```--enumerate``` option, don't forget to set the ``
 
 For more options, open a terminal and type ```wpscan --help``` (if you built wpscan from the source, you should type the command outside of the git repo)
 
-The DB is located at ~/.wpscan/db
+## Database Location
+
+The database location follows the [XDG Base Directory Specification](https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html):
+
+- **New installations**: `~/.cache/wpscan/db` (or `$XDG_CACHE_HOME/wpscan/db` if set)
+- **Existing installations**: `~/.wpscan/db` (legacy path, maintained for backward compatibility)
+
+To migrate an existing installation to the XDG path:
+
+```shell
+mv ~/.wpscan ~/.cache/wpscan
+```
 
 ## Optional: WordPress Vulnerability Database API
 
-The WPScan CLI tool uses the [WordPress Vulnerability Database API](https://wpscan.com/api) to retrieve WordPress vulnerability data in real time. For WPScan to retrieve the vulnerability data an API token must be supplied via the `--api-token` option, or via a configuration file, as discussed below. An API token can be obtained by registering an account on [WPScan.com](https://wpscan.com/register).
+The WPScan CLI tool uses the [WordPress Vulnerability Database API](https://wpscan.com/api) to retrieve WordPress vulnerability data in real-time. For WPScan to retrieve the vulnerability data an API token must be supplied via the `--api-token` option, or via a configuration file, as discussed below. An API token can be obtained by registering an account on [WPScan.com](https://wpscan.com/register).
 
 Up to **25** API requests per day are given free of charge, that should be suitable to scan most WordPress websites at least once per day. When the daily 25 API requests are exhausted, WPScan will continue to work as normal but without any vulnerability data.
 
 ### How many API requests do you need?
 
-- Our WordPress scanner makes one API request for the WordPress version, one request per installed plugin and one request per installed theme.
+- Our WordPress scanner makes one API request for the WordPress version, one request per installed plugin, and one request per the installed theme.
 - On average, a WordPress website has 22 installed plugins.
 
 ## Load CLI options from file/s
@@ -127,7 +138,7 @@ cli_options:
   url: 'http://target.tld'
 ```
 
-Running ```wpscan``` in the current directory (pwd), is the same as ```wpscan -v --proxy socks5://127.0.0.1:9090 --url http://target.tld```
+Running ```wpscan``` in the current directory (pwd) is the same as ```wpscan -v --proxy socks5://127.0.0.1:9090 --url http://target.tld```
 
 Other command line options can be added by using snake case convention. e.g:
 ```yml
@@ -171,7 +182,7 @@ wpscan --url https://target.tld/ --enumerate u1-100
 
 The WPScan software (henceforth referred to simply as "WPScan") is dual-licensed - Copyright 2011-2019 WPScan Team.
 
-Cases that include commercialization of WPScan require a commercial, non-free license. Otherwise, WPScan can be used without charge under the terms set out below.
+Cases that include the commercialization of WPScan require a commercial, non-free license. Otherwise, WPScan can be used without charge under the terms set out below.
 
 ### 1. Definitions
 
@@ -183,15 +194,15 @@ Cases that include commercialization of WPScan require a commercial, non-free li
 
 ### 2. Commercialization
 
-A commercial use is one intended for commercial advantage or monetary compensation.
+Commercial use is one intended for commercial advantage or monetary compensation.
 
 Example cases of commercialization are:
 
 - Using WPScan to provide commercial managed/Software-as-a-Service services.
 - Distributing WPScan as a commercial product or as part of one.
-- Using WPScan as a value added service/product.
+- Using WPScan as a value-added service/product.
 
-Example cases which do not require a commercial license, and thus fall under the terms set out below, include (but are not limited to):
+Example cases that do not require a commercial license, and thus fall under the terms set out below, include (but are not limited to):
 
 - Penetration testers (or penetration testing organizations) using WPScan as part of their assessment toolkit.
 - Penetration Testing Linux Distributions including but not limited to Kali Linux, SamuraiWTF, BackBox Linux.
@@ -222,9 +233,9 @@ Modification is permitted so long as it does not conflict with the Redistributio
 
 Any Contributions assume the Contributor grants the WPScan Team the unlimited, non-exclusive right to reuse, modify and relicense the Contributor's content.
 
-### 7. Support
+### 7. Support, updates, and maintenance 
 
-WPScan is provided under an AS-IS basis and without any support, updates or maintenance. Support, updates and maintenance may be given according to the sole discretion of the WPScan Team.
+WPScan is provided under an AS-IS basis and without any support, updates, or maintenance. Support, updates and maintenance may be given according to the sole discretion of the WPScan Team.
 
 ### 8. Disclaimer of Warranty
 
@@ -232,11 +243,11 @@ WPScan is provided under this License on an “as is” basis, without warranty 
 
 ### 9. Limitation of Liability
 
-To the extent permitted under Law, WPScan is provided under an AS-IS basis. The WPScan Team shall never, and without any limit, be liable for any damage, cost, expense or any other payment incurred as a result of WPScan's actions, failure, bugs and/or any other interaction between WPScan and end-equipment, computers, other software or any 3rd party, end-equipment, computer or services.
+To the extent permitted under Law, WPScan is provided under an AS-IS basis. The WPScan Team shall never, and without any limit, be liable for any damage, cost, expense or any other payment incurred as a result of WPScan's actions, failure, bugs, and/or any other interaction between WPScan and end-equipment, computers, other software or any 3rd party, end-equipment, computer or services.
 
 ### 10. Disclaimer
 
-Running WPScan against websites without prior mutual consent may be illegal in your country. The WPScan Team accept no liability and are not responsible for any misuse or damage caused by WPScan.
+Running WPScan against websites without prior mutual consent may be illegal in your country. The WPScan Team accepts no liability and is not responsible for any misuse or damage caused by WPScan.
 
 ### 11. Trademark
 

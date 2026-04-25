@@ -4,8 +4,8 @@ module WPScan
   module Finders
     module InterestingFindings
       # See https://github.com/wpscanteam/wpscan/issues/1593
-      class PHPDisabled < CMSScanner::Finders::Finder
-        PATTERN = /\$wp_version =/.freeze
+      class PHPDisabled < WPScan::Finders::Finder
+        PATTERN = /\$wp_version =/
 
         # @return [ InterestingFinding ]
         def aggressive(_opts = {})

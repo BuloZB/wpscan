@@ -6,8 +6,8 @@ module WPScan
     class WpItem
       include Vulnerable
       include Finders::Finding
-      include CMSScanner::Target::Platform::PHP
-      include CMSScanner::Target::Server::Generic
+      include WPScan::Target::Platform::PHP
+      include WPScan::Target::Server::Generic
 
       # Most common readme filenames, based on checking all public plugins and themes.
       READMES = %w[readme.txt README.txt README.md readme.md Readme.txt].freeze
@@ -133,9 +133,9 @@ module WPScan
       #
       # @return [ Boolean ]
       def directory_listing?(path = nil, params = {})
-        return if detection_opts[:mode] == :passive
+        return false if detection_opts[:mode] == :passive
 
-        super(path, params)
+        super
       end
 
       # @param [ String ] path
@@ -143,12 +143,12 @@ module WPScan
       #
       # @return [ Boolean ]
       def error_log?(path = 'error_log', params = {})
-        return if detection_opts[:mode] == :passive
+        return false if detection_opts[:mode] == :passive
 
-        super(path, params)
+        super
       end
 
-      # See CMSScanner::Target#head_and_get
+      # See WPScan::Target#head_and_get
       #
       # This is used by the error_log? above in the super()
       # to have the correct path (ie readme.txt checked from the plugin/theme location

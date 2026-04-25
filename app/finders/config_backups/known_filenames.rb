@@ -4,8 +4,8 @@ module WPScan
   module Finders
     module ConfigBackups
       # Config Backup finder
-      class KnownFilenames < CMSScanner::Finders::Finder
-        include CMSScanner::Finders::Finder::Enumerator
+      class KnownFilenames < WPScan::Finders::Finder
+        include WPScan::Finders::Finder::Enumerator
 
         # @param [ Hash ] opts
         # @option opts [ String ] :list
@@ -31,8 +31,10 @@ module WPScan
         def potential_urls(opts = {})
           urls = {}
 
-          File.open(opts[:list]).each_with_index do |file, index|
-            urls[target.url(file.chomp)] = index
+          File.open(opts[:list]) do |f|
+            f.each_with_index do |file, index|
+              urls[target.url(file.chomp)] = index
+            end
           end
 
           urls

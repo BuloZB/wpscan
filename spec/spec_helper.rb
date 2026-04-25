@@ -13,7 +13,7 @@ RSpec.configure do |config|
   end
 
   # For --only-failures / --next-failure
-  config.example_status_persistence_file_path = '/tmp/rspec_examples.txt'
+  config.example_status_persistence_file_path = File.join(ENV['TMPDIR'] || '/tmp', 'rspec_examples.txt')
 end
 
 def redefine_constant(constant, value)
@@ -23,7 +23,7 @@ end
 
 # Dynamic Finders Helpers
 def df_expected_all
-  YAML.safe_load(File.read(DYNAMIC_FINDERS_FIXTURES.join('expected.yml')))
+  YAML.safe_load_file(DYNAMIC_FINDERS_FIXTURES.join('expected.yml'))
 end
 
 def df_tested_class_constant(type, finder_class, slug = nil)
@@ -46,6 +46,16 @@ def vuln_api_data_for(path)
   JSON.parse(File.read(FIXTURES.join('db', 'vuln_api', "#{path}.json")))
 end
 
+def count_files_in_dir(absolute_dir_path, files_pattern = '*')
+  Dir.glob(File.join(absolute_dir_path, files_pattern)).count
+end
+
+# Parse a file containing raw headers and return the associated Hash
+# @return [ Hash ]
+def parse_headers_file(filepath)
+  Typhoeus::Response::Header.new(File.read(filepath))
+end
+
 require 'wpscan'
 require 'shared_examples'
 
@@ -58,7 +68,7 @@ def rspec_parsed_options(args)
 end
 
 # TODO: remove when https://github.com/bblimke/webmock/issues/552 fixed
-#       Also remove from CMSScanner
+#       Also remove from WPScan
 # rubocop:disable all
 module WebMock
   module HttpLibAdapters
@@ -97,9 +107,16 @@ end
 # rubocop:enable all
 
 SPECS                    = Pathname.new(__FILE__).dirname
+CACHE                    = SPECS.join('cache')
 FIXTURES                 = SPECS.join('fixtures')
 FINDERS_FIXTURES         = FIXTURES.join('finders')
+FIXTURES_FINDERS         = FINDERS_FIXTURES
+FIXTURES_MODELS          = FIXTURES.join('models')
+FIXTURES_CONTROLLERS     = FIXTURES.join('controllers')
+FIXTURES_VIEWS           = FIXTURES.join('views')
 DYNAMIC_FINDERS_FIXTURES = FIXTURES.join('dynamic_finders')
-ERROR_404_URL_PATTERN    = %r{/[a-z\d]{7}\.html$}.freeze
+OPV_FIXTURES             = FIXTURES.join('opt_parse_validator')
+APP_VIEWS                = File.join(WPScan::APP_DIR, 'views')
+ERROR_404_URL_PATTERN    = %r{/[a-z\d]{7}\.html$}
 
 redefine_constant(:DB_DIR, FIXTURES.join('db'))

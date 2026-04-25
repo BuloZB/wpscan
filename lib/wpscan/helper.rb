@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+# @param [ String ] file The file path
+def redirect_output_to_file(file)
+  $stdout.reopen(file, 'w')
+  $stdout.sync = true
+end
+
 def read_json_file(file)
   JSON.parse(File.read(file))
 rescue StandardError => e
@@ -13,7 +19,7 @@ end
 #
 # @return [ Symbol ]
 def classify_slug(slug)
-  classified = slug.to_s.gsub(/[^a-z\d\-]/i, '-').gsub(/-{1,}/, '_').camelize.to_s
+  classified = slug.to_s.gsub(/[^a-z\d-]/i, '-').gsub(/-{1,}/, '_').camelize.to_s
   classified = "D_#{classified}" if /\d/.match?(classified[0])
 
   # Special case for slugs with all non-latin characters.

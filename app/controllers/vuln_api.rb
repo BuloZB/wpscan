@@ -3,7 +3,7 @@
 module WPScan
   module Controller
     # Controller to handle the API token
-    class VulnApi < CMSScanner::Controller::Base
+    class VulnApi < WPScan::Controller::Base
       ENV_KEY = 'WPSCAN_API_TOKEN'
 
       def cli_options
@@ -11,6 +11,12 @@ module WPScan
           OptString.new(
             ['--api-token TOKEN',
              'The WPScan API Token to display vulnerability data, available at https://wpscan.com/profile']
+          ),
+          OptBoolean.new(
+            ['--proxy-target-only',
+             'When used with --proxy, the proxy is only applied to requests made to the target, ' \
+             'not to requests made to the WPScan API or database repository (data.wpscan.org). ' \
+             'Has no effect unless --proxy is also set.']
           )
         ]
       end
@@ -18,7 +24,7 @@ module WPScan
       def before_scan
         return unless ParsedCli.api_token || ENV.key?(ENV_KEY)
 
-        DB::VulnApi.token = ParsedCli.api_token || ENV[ENV_KEY]
+        DB::VulnApi.token = ParsedCli.api_token || ENV.fetch(ENV_KEY, nil)
 
         api_status = DB::VulnApi.status
 

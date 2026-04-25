@@ -4,8 +4,8 @@ module WPScan
   module Finders
     module Users
       # Author Id Brute Forcing
-      class AuthorIdBruteForcing < CMSScanner::Finders::Finder
-        include CMSScanner::Finders::Finder::Enumerator
+      class AuthorIdBruteForcing < WPScan::Finders::Finder
+        include WPScan::Finders::Finder::Enumerator
 
         # @return [ Array<Integer> ]
         def valid_response_codes
@@ -68,7 +68,7 @@ module WPScan
 
           username = display_name_from_body(res.body)
 
-          return username, 'Display Name', 50 if username
+          [username, 'Display Name', 50] if username
         end
 
         # @param [ String, Addressable::URI ] uri

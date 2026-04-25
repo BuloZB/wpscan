@@ -3,7 +3,7 @@
 module WPScan
   module Controller
     # Enumeration Methods
-    class Enumeration < CMSScanner::Controller::Base
+    class Enumeration < WPScan::Controller::Base
       # @param [ String ] type (plugins or themes)
       # @param [ Symbol ] detection_mode
       #
@@ -172,7 +172,7 @@ module WPScan
 
         if user_interaction?
           output('@info',
-                 msg: "Enumerating Medias #{enum_detection_message(opts[:mode])} "\
+                 msg: "Enumerating Medias #{enum_detection_message(opts[:mode])} " \
                       '(Permalink setting must be set to "Plain" for those to be detected)')
         end
 

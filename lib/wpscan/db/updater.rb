@@ -22,7 +22,7 @@ module WPScan
       def initialize(repo_directory)
         @repo_directory = Pathname.new(repo_directory).expand_path
 
-        FileUtils.mkdir_p(repo_directory.to_s) unless Dir.exist?(repo_directory.to_s)
+        FileUtils.mkdir_p(repo_directory.to_s)
 
         # When --no-update is passed, return to avoid raising an error if the directory is not writable
         # Mainly there for Homebrew: https://github.com/wpscanteam/wpscan/pull/1455
@@ -73,13 +73,22 @@ module WPScan
       # @return [ Hash ] The params for Typhoeus::Request
       # @note Those params can't be overriden by CLI options
       def request_params
-        @request_params ||= Browser.instance.default_request_params.merge(
-          timeout: 600,
-          connecttimeout: 300,
-          accept_encoding: 'gzip, deflate',
-          cache_ttl: 0,
-          headers: { 'User-Agent' => Browser.instance.default_user_agent }
-        )
+        @request_params ||= begin
+          params = Browser.instance.default_request_params.merge(
+            timeout: 600,
+            connecttimeout: 300,
+            accept_encoding: 'gzip, deflate',
+            cache_ttl: 0,
+            headers: { 'User-Agent' => Browser.instance.default_user_agent }
+          )
+
+          if ParsedCli.proxy_target_only
+            params.delete(:proxy)
+            params.delete(:proxyuserpwd)
+          end
+
+          params
+        end
       end
 
       # @return [ String ] The raw file URL associated with the given filename

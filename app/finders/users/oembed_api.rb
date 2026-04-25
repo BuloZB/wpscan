@@ -5,7 +5,7 @@ module WPScan
     module Users
       # Since WP 4.4, the oembed API can disclose a user
       # https://github.com/wpscanteam/wpscan/issues/1049
-      class OembedApi < CMSScanner::Finders::Finder
+      class OembedApi < WPScan::Finders::Finder
         # @param [ Hash ] opts
         #
         # @return [ Array<User> ]
@@ -35,6 +35,8 @@ module WPScan
           return unless oembed_data
 
           oembed_data = oembed_data.first if oembed_data.is_a?(Array)
+
+          oembed_data = {} unless oembed_data.is_a?(Hash)
 
           if oembed_data['author_url'] =~ %r{/author/([^/]+)/?\z}
             details = [Regexp.last_match[1], 'Author URL', 90]
