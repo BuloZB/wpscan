@@ -14,7 +14,8 @@ module WPScan
       def cli_enum_choices
         [
           OptMultiChoices.new(
-            ['-e', '--enumerate [OPTS]', 'Enumeration Process'],
+            ['-e', '--enumerate [OPTS]', 'Enumeration Process',
+             'Note: --plugins-list overrides vp/ap/p; --themes-list overrides vt/at/t.'],
             choices: {
               vp: OptBoolean.new(['--vulnerable-plugins']),
               ap: OptBoolean.new(['--all-plugins']),
@@ -32,8 +33,7 @@ module WPScan
                                      value_if_empty: '1-100')
             },
             value_if_empty: 'vp,vt,tt,cb,dbe,u,m',
-            incompatible: [%i[vp ap p], %i[vt at t]],
-            default: { all_plugins: true, config_backups: true }
+            incompatible: [%i[vp ap p], %i[vt at t]]
           ),
           OptRegexp.new(
             [
@@ -52,7 +52,7 @@ module WPScan
           OptChoice.new(
             ['--plugins-detection MODE',
              'Use the supplied mode to enumerate Plugins.'],
-            choices: %w[mixed passive aggressive], normalize: :to_sym, default: :passive
+            choices: %w[mixed passive aggressive], normalize: :to_sym
           ),
           OptBoolean.new(
             ['--plugins-version-all',
@@ -63,7 +63,7 @@ module WPScan
           OptChoice.new(
             ['--plugins-version-detection MODE',
              'Use the supplied mode to check plugins\' versions.'],
-            choices: %w[mixed passive aggressive], normalize: :to_sym, default: :mixed
+            choices: %w[mixed passive aggressive], normalize: :to_sym
           ),
           OptInteger.new(
             ['--plugins-threshold THRESHOLD',

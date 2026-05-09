@@ -103,6 +103,7 @@ describe WPScan::Model::Theme do
     before do
       stub_request(:get, /.*\.css\z/)
       allow(theme).to receive(:db_data).and_return(db_data)
+      allow(theme).to receive(:wordpress_org_data).and_return({})
     end
 
     context 'when no db_data and no metadata' do
@@ -230,11 +231,14 @@ describe WPScan::Model::Theme do
           [
             WPScan::Vulnerability.new(
               'First Vuln',
-              references: { wpvulndb: '1' },
+              references: { wpvulndb: 'b099c1da-3750-4e63-8af9-929e773bbe62' },
               type: 'LFI',
-              fixed_in: '6.3.10'
+              fixed_in: '6.3.10',
+              poc: "<?php\n// Theme LFI exploit\ninclude($_GET['page']);\n?>",
+              uuid: 'b099c1da-3750-4e63-8af9-929e773bbe62'
             ),
-            WPScan::Vulnerability.new('No Fixed In', references: { wpvulndb: '2' })
+            WPScan::Vulnerability.new('No Fixed In', references: { wpvulndb: 'b199c1da-3750-4e63-8af9-929e773bbe63' },
+                                                     uuid: 'b199c1da-3750-4e63-8af9-929e773bbe63')
           ]
         end
 
@@ -271,6 +275,15 @@ describe WPScan::Model::Theme do
           end
         end
       end
+    end
+  end
+
+  describe '#wordpress_org_api_url' do
+    before { stub_request(:get, /.*\.css\z/).to_return(body: '') }
+
+    its(:wordpress_org_api_url) do
+      should eql 'https://api.wordpress.org/themes/info/1.2/?action=theme_information' \
+                 '&request[slug]=spec&request[fields][active_installs]=1&request[fields][last_updated]=1'
     end
   end
 

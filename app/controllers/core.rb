@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'core/cli_options'
+require 'socket'
 
 module WPScan
   module Controller
@@ -199,7 +200,12 @@ module WPScan
         @start_time   = Time.now
         @start_memory = WPScan.start_memory
 
-        output('started', url: target.url, ip: target.ip, effective_url: target.homepage_url)
+        output('started',
+               url: target.url,
+               ip: target.ip,
+               effective_url: target.homepage_url,
+               command_line: WPScan.command_line,
+               hostname: Socket.gethostname)
       end
 
       def after_scan
@@ -207,11 +213,16 @@ module WPScan
         @elapsed     = @stop_time - @start_time
         @used_memory = GetProcessMem.new.bytes - @start_memory
 
+        warnings = WPScan.error_warning_messages
+
         output('finished',
                cached_requests: WPScan.cached_requests,
                requests_done: WPScan.total_requests,
                data_sent: WPScan.total_data_sent,
-               data_received: WPScan.total_data_received)
+               data_received: WPScan.total_data_received,
+               response_status_codes: WPScan.format_status_codes(WPScan.top_status_codes),
+               response_status_codes_warning: warnings.any?,
+               response_status_codes_warnings: warnings)
       end
     end
   end

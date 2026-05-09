@@ -60,6 +60,12 @@ describe WPScan::Model::Plugin do
     end
   end
 
+  describe '#wordpress_org_api_url' do
+    its(:wordpress_org_api_url) do
+      should eql 'https://api.wordpress.org/plugins/info/1.2/?action=plugin_information&request[slug]=spec'
+    end
+  end
+
   describe 'potential_readme_filenames' do
     context 'when not set in the DF file' do
       its(:potential_readme_filenames) { should eql described_class::READMES }
@@ -81,7 +87,10 @@ describe WPScan::Model::Plugin do
   end
 
   describe '#latest_version, #last_updated, #popular' do
-    before { allow(plugin).to receive(:db_data).and_return(db_data) }
+    before do
+      allow(plugin).to receive(:db_data).and_return(db_data)
+      allow(plugin).to receive(:wordpress_org_data).and_return({})
+    end
 
     context 'when no db_data and no metadata' do
       let(:slug)    { 'not-known' }
@@ -203,11 +212,15 @@ describe WPScan::Model::Plugin do
             [
               WPScan::Vulnerability.new(
                 'First Vuln <= 6.3.10 - LFI',
-                references: { wpvulndb: '1' },
+                references: { wpvulndb: 'e099c1da-3750-4e63-8af9-929e773bbe59' },
                 type: 'LFI',
-                fixed_in: '6.3.10'
+                fixed_in: '6.3.10',
+                poc: "#!/bin/bash\ncurl 'http://example.com/?file=../../../etc/passwd'",
+                uuid: 'e099c1da-3750-4e63-8af9-929e773bbe59'
               ),
-              WPScan::Vulnerability.new('No Fixed In', references: { wpvulndb: '2' })
+              WPScan::Vulnerability.new('No Fixed In',
+                                        references: { wpvulndb: 'f099c1da-3750-4e63-8af9-929e773bbe60' },
+                                        uuid: 'f099c1da-3750-4e63-8af9-929e773bbe60')
             ]
           end
 
@@ -254,7 +267,8 @@ describe WPScan::Model::Plugin do
                 'Introduced In 6.4',
                 fixed_in: '6.5',
                 introduced_in: '6.4',
-                references: { wpvulndb: '1' }
+                references: { wpvulndb: 'a099c1da-3750-4e63-8af9-929e773bbe61' },
+                uuid: 'a099c1da-3750-4e63-8af9-929e773bbe61'
               )
             ]
           end

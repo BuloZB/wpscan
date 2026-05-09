@@ -44,6 +44,28 @@ brew install wpscanteam/tap/wpscan
 
 ### From RubyGems
 
+WPScan depends on gems with native extensions (e.g. `yajl-ruby`, `nokogiri`, `ffi`), so a working C toolchain and Ruby development headers must be present before `gem install wpscan`. Without them, the install fails with errors like `Failed to build gem native extension` or `make: x86_64-linux-gnu-gcc: No such file or directory` (see [#1844](https://github.com/wpscanteam/wpscan/issues/1844)).
+
+- **Debian / Ubuntu**:
+  ```shell
+  sudo apt install build-essential ruby-dev
+  ```
+- **Fedora / RHEL / CentOS**:
+  ```shell
+  sudo dnf install @development-tools ruby-devel
+  ```
+- **Arch Linux**:
+  ```shell
+  sudo pacman -S base-devel ruby
+  ```
+- **Alpine**:
+  ```shell
+  sudo apk add build-base ruby-dev
+  ```
+- **macOS**: install the Xcode Command Line Tools (`xcode-select --install`).
+
+Then install the gem:
+
 ```shell
 gem install wpscan
 ```
@@ -90,7 +112,7 @@ The named volume is created automatically on first use if it doesn't already exi
 
 Full user documentation can be found here; https://github.com/wpscanteam/wpscan/wiki/WPScan-User-Documentation
 
-```wpscan --url blog.tld``` This will scan the blog using default options with a good compromise between speed and accuracy. For example, the plugins will be checked passively but their version with a mixed detection mode (passively + aggressively). Potential config backup files will also be checked, along with other interesting findings.
+```wpscan --url blog.tld``` This will scan the blog using default options with a good compromise between speed and accuracy. It performs version detection, theme detection, and interesting findings discovery. To enumerate plugins, themes, users, etc., use the `-e` option (e.g., `-e ap` for all plugins, `-e vp` for vulnerable plugins).
 
 If a more stealthy approach is required, then ```wpscan --stealthy --url blog.tld``` can be used.
 As a result, when using the ```--enumerate``` option, don't forget to set the ```--plugins-detection``` accordingly, as its default is 'passive'.
@@ -103,6 +125,11 @@ The database location follows the [XDG Base Directory Specification](https://spe
 
 - **New installations**: `~/.cache/wpscan/db` (or `$XDG_CACHE_HOME/wpscan/db` if set)
 - **Existing installations**: `~/.wpscan/db` (legacy path, maintained for backward compatibility)
+
+Runtime files such as the default HTTP cache and cookie jar are stored under `$TMPDIR/wpscan` when
+`$TMPDIR` is set. Otherwise they use the same per-user XDG cache directory, for example
+`~/.cache/wpscan/cache` and `~/.cache/wpscan/cookie_jar.txt`. These defaults can be overridden
+with `--cache-dir` and `--cookie-jar`.
 
 To migrate an existing installation to the XDG path:
 

@@ -45,13 +45,17 @@ require 'wpscan/formatter'
 require 'wpscan/references'
 require 'wpscan/finders'
 require 'wpscan/vulnerability'
+require 'wpscan/vulnerability_filter'
 require 'wpscan/progressbar_null_output'
 require 'wpscan/db'
 require 'wpscan/vulnerable'
+require 'wpscan/http_status_tracking'
 
 Encoding.default_external = Encoding::UTF_8
 
 module WPScan
+  extend HttpStatusTracking
+
   APP_DIR = Pathname.new(__FILE__).dirname.join('..', 'app').expand_path
 
   # Avoid memory leak when using Hydra, see https://github.com/typhoeus/typhoeus/issues/562
@@ -74,6 +78,9 @@ module WPScan
     self.total_data_sent += response.request_size
     self.total_data_received += response.size
 
+    # Track HTTP status codes
+    increment_status_code(response.code)
+
     self.api_requests += 1 if response.respond_to?(:from_vuln_api?) && response.from_vuln_api?
 
     WPScan::Browser.instance.trottle!
@@ -85,6 +92,10 @@ module WPScan
     # path to load the cli options from files.
     def app_name
       'wpscan'
+    end
+
+    def user_cache_dir
+      Pathname.new(ENV['XDG_CACHE_HOME'] || Pathname.new(Dir.home).join('.cache')).join(app_name)
     end
 
     def cached_requests
@@ -134,6 +145,15 @@ module WPScan
 
     def api_requests=(value)
       @@api_requests = value
+    end
+
+    # Command line arguments used to start the scan
+    def command_line
+      @@command_line ||= ''
+    end
+
+    def command_line=(value)
+      @@command_line = value
     end
   end
 end
