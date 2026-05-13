@@ -112,7 +112,7 @@ The named volume is created automatically on first use if it doesn't already exi
 
 Full user documentation can be found here; https://github.com/wpscanteam/wpscan/wiki/WPScan-User-Documentation
 
-```wpscan --url blog.tld``` This will scan the blog using default options with a good compromise between speed and accuracy. It performs version detection, theme detection, and interesting findings discovery. To enumerate plugins, themes, users, etc., use the `-e` option (e.g., `-e ap` for all plugins, `-e vp` for vulnerable plugins).
+```wpscan --url blog.tld``` This will scan the blog using default options with a good compromise between speed and accuracy. It performs version detection, theme detection, and interesting findings discovery. To enumerate plugins, themes, users, backup folders, etc., use the `-e` option (e.g., `-e ap` for all plugins, `-e vp` for vulnerable plugins, `-e bf` for backup folders).
 
 If a more stealthy approach is required, then ```wpscan --stealthy --url blog.tld``` can be used.
 As a result, when using the ```--enumerate``` option, don't forget to set the ```--plugins-detection``` accordingly, as its default is 'passive'.
@@ -200,6 +200,9 @@ cli_options:
 
 The API Token will be automatically loaded from the ENV variable `WPSCAN_API_TOKEN` if present. If the `--api-token` CLI option is also provided, the value from the CLI will be used.
 
+## API Service Status
+
+If you experience connection issues with the WPScan API, you can check the service status at https://status.wpscan.com/. When API connection errors occur, WPScan will include a link to the status page in the error message.
 
 ## Enumerating usernames
 
@@ -214,6 +217,14 @@ wpscan --url https://target.tld/ --enumerate u1-100
 ```
 
 ** replace u1-100 with a range of your choice.
+
+## Enumerating backup folders
+
+```shell
+wpscan --url https://target.tld/ --enumerate bf
+```
+
+This will check for backup folders created by popular WordPress backup plugins. These folders may contain sensitive data like database dumps, configuration files, or full site backups.
 
 # LICENSE
 

@@ -79,10 +79,32 @@ module WPScan
         end
       end
 
+      # Suppresses plugin/theme --enumerate choices and --plugins-list / --themes-list
+      # when --wp-auth was supplied, since AuthenticatedInventory already populated
+      # the target with authoritative data.
+      #
+      # @param [ Hash ] enum The enumeration hash, mutated in place.
+      def suppress_plugin_theme_choices_when_authenticated(enum)
+        return unless ParsedCli.wp_auth
+
+        suppressed = enum.keys & WP_AUTH_SUPPRESSED_CHOICES
+        suppressed.each { |k| enum.delete(k) }
+
+        lists_suppressed = %i[plugins_list themes_list].select { |opt| ParsedCli.send(opt) }
+        return if suppressed.empty? && lists_suppressed.empty?
+
+        ignored = (suppressed + lists_suppressed.map { |o| "--#{o.to_s.tr('_', '-')}" }).join(', ')
+        output('@notice',
+               msg: "--wp-auth provided; ignoring plugin/theme enumeration option(s): #{ignored} " \
+                    '(authoritative inventory already retrieved via the WP REST API).')
+      end
+
       # @param [ Hash ] opts
       #
       # @return [ Boolean ] Wether or not to enumerate the plugins
       def enum_plugins?(opts)
+        return false if ParsedCli.wp_auth
+
         ParsedCli.plugins_list || opts[:popular_plugins] || opts[:all_plugins] || opts[:vulnerable_plugins]
       end
 
@@ -130,6 +152,8 @@ module WPScan
       #
       # @return [ Boolean ] Wether or not to enumerate the themes
       def enum_themes?(opts)
+        return false if ParsedCli.wp_auth
+
         ParsedCli.themes_list || opts[:popular_themes] || opts[:all_themes] || opts[:vulnerable_themes]
       end
 
@@ -192,6 +216,13 @@ module WPScan
 
         output('@info', msg: "Enumerating DB Exports #{enum_detection_message(opts[:mode])}") if user_interaction?
         output('db_exports', db_exports: target.db_exports(opts))
+      end
+
+      def enum_backup_folders
+        opts = { list: ParsedCli.backup_folders_list, show_progression: user_interaction? }
+
+        output('@info', msg: 'Enumerating Backup Folders') if user_interaction?
+        output('backup_folders', backup_folders: target.backup_folders(opts))
       end
 
       def enum_medias

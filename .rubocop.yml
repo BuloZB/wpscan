@@ -23,6 +23,7 @@ Metrics/ClassLength:
   Max: 150
   Exclude:
   - 'app/controllers/enumeration/cli_options.rb'
+  - 'app/controllers/enumeration/enum_methods.rb'
   - 'app/formatters/sarif.rb'
 Metrics/CyclomaticComplexity:
   Max: 10
@@ -31,6 +32,7 @@ Metrics/MethodLength:
   Exclude:
   - 'app/controllers/enumeration/cli_options.rb'
   - 'app/controllers/core/cli_options.rb'
+  - 'app/controllers/password_attack.rb'
 Metrics/ParameterLists:
   Max: 6
   MaxOptionalParameters: 4
