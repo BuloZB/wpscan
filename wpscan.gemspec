@@ -1,7 +1,4 @@
-lib = File.expand_path('../lib', __FILE__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-
-require 'wpscan/version'
+require_relative 'lib/wpscan/version'
 
 Gem::Specification.new do |s|
   s.name                  = 'wpscan'
@@ -33,6 +30,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'yajl-ruby',            '~> 1.4.1'
   s.add_dependency 'ostruct',              '~> 0.6'
   s.add_dependency 'fiddle',               '~> 1.1'
+  s.add_dependency 'ferrum',               '~> 0.8'
 
   s.add_development_dependency 'bundler',             '>= 1.6'
   s.add_development_dependency 'memory_profiler',     '~> 1.1.0'

@@ -16,10 +16,17 @@ module WPScan
 
     # Registers the potential option-file paths with the option_parser.
     def register_config_files
-      [Dir.home, Dir.pwd].each do |dir|
-        option_parser.config_files.class.supported_extensions.each do |ext|
-          option_parser.config_files << Pathname.new(dir).join(".#{WPScan.app_name}", "scan.#{ext}").to_s
-        end
+      # XDG Base Directory support for configuration
+      # https://specifications.freedesktop.org/basedir/latest/
+      xdg = ENV.fetch('XDG_CONFIG_HOME', nil)
+      xdg = Pathname.new(Dir.home).join('.config') if xdg.nil? || xdg.empty?
+      app = WPScan.app_name
+
+      dirs = [[xdg, app], [Dir.home, ".#{app}"], [Dir.pwd, ".#{app}"]]
+      exts = option_parser.config_files.class.supported_extensions
+
+      dirs.product(exts).each do |(dir, sub), ext|
+        option_parser.config_files << Pathname.new(dir).join(sub, "scan.#{ext}").to_s
       end
     end
 
@@ -36,10 +43,24 @@ module WPScan
       self
     end
 
+    # Force the non-colored CLI formatter when ANSI escapes would be
+    # unwanted: writing to a file, piping to another process, or when the
+    # caller has set NO_COLOR (see https://no-color.org). Explicit
+    # --format choices are preserved.
+    def apply_no_colour_default
+      return if WPScan::ParsedCli.options[:format]
+
+      no_color = ENV.fetch('NO_COLOR', nil)
+      return unless WPScan::ParsedCli.output || !$stdout.tty? || (no_color && !no_color.empty?)
+
+      WPScan::ParsedCli.options[:format] = 'cli-no-colour'
+    end
+
     def run
       WPScan::ParsedCli.options = option_parser.results
       first.class.option_parser = option_parser # needed to output help on -h/--hh
 
+      apply_no_colour_default
       redirect_output_to_file(WPScan::ParsedCli.output) if WPScan::ParsedCli.output
 
       Timeout.timeout(WPScan::ParsedCli.max_scan_duration, WPScan::Error::MaxScanDurationReached) do

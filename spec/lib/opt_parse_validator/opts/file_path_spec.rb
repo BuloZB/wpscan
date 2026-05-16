@@ -33,7 +33,7 @@ describe OptParseValidator::OptFilePath do
 
       context 'when it matches' do
         it 'returns the path' do
-          expect(opt.validate(file_path)).to eql file_path
+          expect(opt.validate(file_path)).to eql Pathname.new(file_path)
         end
       end
 
@@ -52,7 +52,7 @@ describe OptParseValidator::OptFilePath do
         it 'does not create it' do
           expect(FileUtils).to_not receive(:touch)
 
-          expect(opt.validate(file_path)).to eql file_path
+          expect(opt.validate(file_path)).to eql Pathname.new(file_path)
         end
       end
 
@@ -60,7 +60,7 @@ describe OptParseValidator::OptFilePath do
         let(:file_path) { OPV_FIXTURES.join('file_path2.txt').to_s }
 
         it 'creates it' do
-          expect(opt.validate(file_path)).to eql file_path
+          expect(opt.validate(file_path)).to eql Pathname.new(file_path)
           expect(File.exist?(file_path)).to eql true
 
           FileUtils.remove_file(file_path)
@@ -74,13 +74,14 @@ describe OptParseValidator::OptFilePath do
       it 'returns the path if executable' do
         expect_any_instance_of(Pathname).to receive(:executable?).and_return(true)
 
-        expect(opt.validate(file_path)).to eql file_path
+        expect(opt.validate(file_path)).to eql Pathname.new(file_path)
       end
 
       it 'raises an error if not ' do
         expect do
           opt.validate(file_path)
-        end.to raise_error(OptParseValidator::Error, "The path '#{file_path}' is not executable")
+        end.to raise_error(OptParseValidator::Error,
+                           "The path '#{file_path}' is not executable (uid=#{Process.uid}, gid=#{Process.gid})")
       end
     end
 
@@ -88,7 +89,7 @@ describe OptParseValidator::OptFilePath do
       let(:attrs) { { readable: true, exists: false } }
 
       it 'returns the path if readable' do
-        expect(opt.validate(file_path)).to eql file_path
+        expect(opt.validate(file_path)).to eql Pathname.new(file_path)
       end
 
       it 'raises an error otherwise' do
@@ -96,7 +97,8 @@ describe OptParseValidator::OptFilePath do
 
         expect do
           opt.validate(file_path)
-        end.to raise_error(OptParseValidator::Error, "The path '#{file_path}' is not readable")
+        end.to raise_error(OptParseValidator::Error,
+                           "The path '#{file_path}' is not readable (uid=#{Process.uid}, gid=#{Process.gid})")
       end
     end
 
@@ -105,7 +107,7 @@ describe OptParseValidator::OptFilePath do
         let(:attrs) { { writable: true } }
 
         it 'returns the path if writable' do
-          expect(opt.validate(file_path)).to eql file_path
+          expect(opt.validate(file_path)).to eql Pathname.new(file_path)
         end
 
         it 'raises an error otherwise' do
@@ -113,7 +115,8 @@ describe OptParseValidator::OptFilePath do
 
           expect do
             opt.validate(file_path)
-          end.to raise_error(OptParseValidator::Error, "The path '#{file_path}' is not writable")
+          end.to raise_error(OptParseValidator::Error,
+                             "The path '#{file_path}' is not writable (uid=#{Process.uid}, gid=#{Process.gid})")
         end
       end
 
@@ -124,7 +127,7 @@ describe OptParseValidator::OptFilePath do
           let(:file) { OPV_FIXTURES.join('advanced_help', 'not_there.txt').to_s }
 
           it 'returns the path' do
-            expect(opt.validate(file)).to eql file
+            expect(opt.validate(file)).to eql Pathname.new(file)
           end
         end
 
@@ -132,7 +135,10 @@ describe OptParseValidator::OptFilePath do
           let(:file) { OPV_FIXTURES.join('hfjhg', 'yolo.rb').to_s }
 
           it 'raises an error' do
-            expect { opt.validate(file) }.to raise_error(OptParseValidator::Error, "The path '#{file}' is not writable")
+            expect do
+              opt.validate(file)
+            end.to raise_error(OptParseValidator::Error,
+                               "The path '#{file}' is not writable (uid=#{Process.uid}, gid=#{Process.gid})")
           end
         end
       end

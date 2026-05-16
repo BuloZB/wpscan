@@ -16,6 +16,11 @@ module WPScan
           OptFilePath.new(['-o', '--output FILE', 'Output to FILE'], writable: true, exists: false),
           OptChoice.new(['-f', '--format FORMAT',
                          'Output results in the format supplied'], choices: formats),
+          OptBoolean.new(['--[no-]stream',
+                          'Emit enumeration findings (plugins/themes/users) as they are discovered, ' \
+                          'instead of waiting until each enumeration step completes. ' \
+                          'Has no effect on the json or sarif output formats, which always batch.'],
+                         default: true),
           OptChoice.new(['--detection-mode MODE'],
                         choices: %w[mixed passive aggressive],
                         normalize: :to_sym,
@@ -117,7 +122,13 @@ module WPScan
                           writable: true,
                           readable: true,
                           create: true,
-                          default: File.join(tmp_directory, 'cookie_jar.txt'))
+                          default: tmp_directory.join('cookie_jar.txt')),
+          OptBoolean.new(['--expect-saml',
+                          'Expect SAML authentication to be required. ' \
+                          'When the target redirects to a SAML IdP, an interactive browser ' \
+                          'is launched for login and the resulting session cookies are reused ' \
+                          'for the rest of the scan.'],
+                         advanced: true)
         ]
       end
 
@@ -131,7 +142,7 @@ module WPScan
                                readable: true,
                                writable: true,
                                create: true,
-                               default: File.join(tmp_directory, 'cache'),
+                               default: tmp_directory.join('cache'),
                                advanced: true)
         ]
       end

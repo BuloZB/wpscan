@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://wpscan.com/">
-    <img src="https://raw.githubusercontent.com/wpscanteam/wpscan/gh-pages/images/wpscan_logo.png" alt="WPScan logo">
+    <img src="https://raw.githubusercontent.com/wpscanteam/wpscan/5af15af5e7d67ee7c6e5e4ebcf75c1dfabfa123b/images/wpscan_logo.png" alt="WPScan logo">
   </a>
 </p>
 
@@ -17,7 +17,8 @@
   <a href="https://badge.fury.io/rb/wpscan" target="_blank"><img src="https://badge.fury.io/rb/wpscan.svg"></a>
   <a href="https://hub.docker.com/r/wpscanteam/wpscan/" target="_blank"><img src="https://img.shields.io/docker/pulls/wpscanteam/wpscan.svg"></a>
   <a href="https://github.com/wpscanteam/wpscan/actions?query=workflow%3ABuild" target="_blank"><img src="https://github.com/wpscanteam/wpscan/workflows/Build/badge.svg"></a>
-  <a href="https://codeclimate.com/github/wpscanteam/wpscan" target="_blank"><img src="https://codeclimate.com/github/wpscanteam/wpscan/badges/gpa.svg"></a>
+  <a href="https://qlty.sh/gh/wpscanteam/projects/wpscan" target="_blank"><img src="https://qlty.sh/gh/wpscanteam/projects/wpscan/maintainability.svg" alt="Maintainability"></a>
+  <a href="https://coveralls.io/github/wpscanteam/wpscan?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/wpscanteam/wpscan/badge.svg?branch=master" alt="Coverage Status"></a>
 </p>
 
 # INSTALL
@@ -152,6 +153,10 @@ Up to **25** API requests per day are given free of charge, that should be suita
 
 WPScan can load all options (including the `--url`) from configuration files, the following locations are checked (order: first to last):
 
+- `$XDG_CONFIG_HOME/wpscan/scan.json` (if `XDG_CONFIG_HOME` is set)
+- `$XDG_CONFIG_HOME/wpscan/scan.yml` (if `XDG_CONFIG_HOME` is set)
+- `~/.config/wpscan/scan.json` (if `XDG_CONFIG_HOME` is not set)
+- `~/.config/wpscan/scan.yml` (if `XDG_CONFIG_HOME` is not set)
 - `~/.wpscan/scan.json`
 - `~/.wpscan/scan.yml`
 - `pwd/.wpscan/scan.json`
@@ -161,7 +166,7 @@ If those files exist, options from the `cli_options` key will be loaded and over
 
 e.g:
 
-`~/.wpscan/scan.yml`:
+`~/.config/wpscan/scan.yml`:
 
 ```yml
 cli_options:
@@ -189,7 +194,7 @@ cli_options:
 
 ## Save API Token in a file
 
-The feature mentioned above is useful to keep the API Token in a config file and not have to supply it via the CLI each time. To do so, create the ~/.wpscan/scan.yml file containing the below:
+The feature mentioned above is useful to keep the API Token in a config file and not have to supply it via the CLI each time. To do so, create the ~/.config/wpscan/scan.yml file containing the below:
 
 ```yml
 cli_options:
